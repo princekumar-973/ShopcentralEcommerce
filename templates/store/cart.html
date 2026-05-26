@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="container-custom">
+    <h2 class="cart-title">Your Shopping Bag</h2>
+
+    {% if cart %}
+    <div class="row g-4">
+      <!-- Cart Items -->
+      <div class="col-lg-8">
+        <div class="cart-table-wrapper">
+          <table class="cart-table w-100">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-3">
+                    {% if item.product.image %}
+                      <img src="{{ item.product.image.url }}" class="cart-item-image" alt="{{ item.product.name }}">
+                    {% endif %}
+                    <div>
+                      <div class="cart-item-name">{{ item.product.name }}</div>
+                      {% if item.size %}
+                        <div class="small text-muted mt-1">Size: <span class="fw-bold">{{ item.size }}</span></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted fw-medium">₹{{ item.price }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark border-0 shadow-sm px-3 py-2 rounded-pill fw-bold">
+                      {{ item.quantity }}
+                    </span>
+                  </div>
+                </td>
+                <td class="fw-bold text-dark fs-5">₹{{ item.total_price }}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'store:cart_remove' item.product.id %}" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="size" value="{{ item.size }}">
+                    <button type="submit" class="btn btn-soft-danger rounded-circle p-2" title="Remove">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4">
+          <a href="{% url 'store:product_list' %}" class="btn btn-link text-muted text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Side: Order Summary & Checkout -->
+      <div class="col-lg-4">
+        <form method="post" action="{% url 'store:place_order' %}">
+          {% csrf_token %}
+          <input type="hidden" name="payment" id="selected-payment" value="upi">
+
+          <div class="cart-summary-card">
+            <h4 class="summary-title">Order Summary</h4>
+            
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span class="fw-bold text-dark">₹{{ cart.get_total }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Shipping Fee</span>
+              <span class="text-success fw-bold">FREE</span>
+            </div>
+            
+            <div class="summary-total">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Estimated Total</span>
+                <span>₹{{ cart.get_total }}</span>
+              </div>
+            </div>
+
+            <hr class="my-4 opacity-25">
+
+            <h6 class="fw-bold mb-3 text-uppercase small" style="letter-spacing: 1px;">Delivery Details</h6>
+            {% if error %}
+              <div class="alert alert-danger small py-2 rounded-3 border-0 bg-danger bg-opacity-10">{{ error }}</div>
+            {% endif %}
+            
+            <div class="mb-3">
+              <label class="form-label small text-muted">Shipping Address</label>
+              <textarea name="address" class="form-control" rows="3" placeholder="Enter your full address..." required>{{ user.profile.address }}</textarea>
+            </div>
+            <div class="row g-2 mb-4">
+              <div class="col-4">
+                <label class="form-label small text-muted">City</label>
+                <input type="text" name="city" class="form-control" placeholder="City" value="{{ user.profile.city }}" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">State</label>
+                <input type="text" name="state" class="form-control" placeholder="State" value="{{ user.profile.state }}" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">Pincode</label>
+                <input type="text" name="pincode" class="form-control" placeholder="Pincode" value="{{ user.profile.pincode }}" required>
+              </div>
+            </div>
+
+            <h6 class="fw-bold mb-3 text-uppercase small" style="letter-spacing: 1px;">Payment Method</h6>
+            <div class="payment-methods mb-4">
+              <div class="form-check payment-check p-3 border rounded-3 mb-2 transition" style="cursor: pointer;">
+                <input class="form-check-input ms-0 me-2" type="radio" name="payment_display" id="pay-upi" value="upi" checked 
+                       onchange="document.getElementById('selected-payment').value='upi'">
+                <label class="form-check-label fw-bold d-flex align-items-center" for="pay-upi">
+                  <i class="bi bi-qr-code-scan me-2"></i> UPI / GPay
+                </label>
+              </div>
+              <div class="form-check payment-check p-3 border rounded-3 transition" style="cursor: pointer;">
+                <input class="form-check-input ms-0 me-2" type="radio" name="payment_display" id="pay-cod" value="cod"
+                       onchange="document.getElementById('selected-payment').value='cod'">
+                <label class="form-check-label fw-bold d-flex align-items-center" for="pay-cod">
+                  <i class="bi bi-cash-coin me-2"></i> Cash on Delivery
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold text-uppercase rounded-3 shadow-lg" style="letter-spacing: 1px;">
+              Place Order <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+            
+            <div class="text-center mt-3 text-muted small">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i> SSL Secure Payment
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="empty-cart">
+      <div class="empty-cart-icon"><i class="bi bi-bag-x"></i></div>
+      <h3 class="fw-bold">Your cart is empty</h3>
+      <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+      <a href="{% url 'store:product_list' %}" class="btn btn-primary px-5 py-3 rounded-3 fw-bold">
+        Start Shopping
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .btn-soft-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-soft-danger:hover {
+    background: #ef4444;
+    color: white;
+    transform: rotate(90deg);
+  }
+  .payment-check:hover {
+    border-color: var(--dash-accent) !important;
+    background-color: var(--dash-accent-soft);
+  }
+  .payment-check input:checked + label {
+    color: var(--dash-accent);
+  }
+  .form-control {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--dash-border);
+    background-color: var(--dash-bg);
+    color: var(--dash-text);
+  }
+  .form-control:focus {
+    border-color: var(--dash-accent);
+    box-shadow: 0 0 0 3px var(--dash-accent-soft);
+  }
+  .payment-check input:checked {
+    background-color: var(--dash-accent);
+    border-color: var(--dash-accent);
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="container-custom">
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar -->
+      <aside class="dash-sidebar">
+        <div class="dash-user-info p-3 mb-4 text-center">
+          <div class="dash-avatar mb-3">
+            {% if user.profile.avatar %}
+              <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="img-fluid rounded-circle shadow-sm">
+            {% else %}
+              <div class="dash-avatar-placeholder mx-auto d-flex align-items-center justify-content-center fw-bold fs-3 rounded-circle shadow-sm">
+                {{ user.username|first|upper }}
+              </div>
+            {% endif %}
+          </div>
+          <h5 class="mb-1 fw-bold text-dark text-truncate px-2">{{ user.get_full_name|default:user.username }}</h5>
+          <p class="small text-muted mb-0 text-truncate px-2">{{ user.email }}</p>
+        </div>
+
+        <nav class="dash-nav">
+          <a href="{% url 'accounts:dashboard' %}" class="dash-nav-link active">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+          </a>
+          <a href="{% url 'accounts:profile' %}" class="dash-nav-link">
+            <i class="bi bi-person-circle"></i> Edit Profile
+          </a>
+          <a href="{% url 'store:my_orders' %}" class="dash-nav-link">
+            <i class="bi bi-box-seam"></i> My Orders
+          </a>
+          <a href="{% url 'store:cart_detail' %}" class="dash-nav-link">
+            <i class="bi bi-cart3"></i> My Cart
+          </a>
+          <hr class="my-2 opacity-50">
+          <form method="post" action="{% url 'logout' %}" id="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="dash-nav-link logout border-0 bg-transparent w-100 text-start">
+              <i class="bi bi-door-open"></i> Logout
+            </button>
+          </form>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="dash-main">
+        
+        <!-- Welcome Banner -->
+        <section class="welcome-banner">
+          <div class="position-relative z-1">
+            <h2 class="fw-bold mb-2">Welcome back, {{ user.username }}! 👋</h2>
+            <p class="mb-0 opacity-75">Check your latest orders, wishlist items and manage your account details easily.</p>
+          </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon orders">
+              <i class="bi bi-bag-check"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{{ user.orders.count }}</span>
+              <span class="stat-label">Total Orders</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon wishlist">
+              <i class="bi bi-heart"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">0</span>
+              <span class="stat-label">Wishlist</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon address">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value">{% if user.profile.address %}1{% else %}0{% endif %}</span>
+              <span class="stat-label">Addresses</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon cart">
+              <i class="bi bi-cart-plus"></i>
+            </div>
+            <div class="stat-info">
+              {% with cart_count=request.session.cart|length %}
+              <span class="stat-value">{{ cart_count }}</span>
+              {% endwith %}
+              <span class="stat-label">Cart Items</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Account Info & Recent Orders -->
+        <div class="row g-4">
+          <!-- Account Details -->
+          <div class="col-lg-5">
+            <div class="dash-card h-100">
+              <div class="dash-card-header">
+                <h5 class="fw-bold mb-0">Account Info</h5>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-soft-primary">Edit</a>
+              </div>
+              <ul class="list-unstyled mb-0">
+                <li class="mb-3 d-flex justify-content-between border-bottom pb-2">
+                  <span class="text-muted">Username</span>
+                  <span class="fw-medium">{{ user.username }}</span>
+                </li>
+                <li class="mb-3 d-flex justify-content-between border-bottom pb-2">
+                  <span class="text-muted">Email</span>
+                  <span class="fw-medium">{{ user.email }}</span>
+                </li>
+                <li class="mb-3 d-flex justify-content-between border-bottom pb-2">
+                  <span class="text-muted">Phone</span>
+                  <span class="fw-medium">{{ user.profile.phone|default:"Not set" }}</span>
+                </li>
+                <li class="mb-0 d-flex justify-content-between">
+                  <span class="text-muted">Joined</span>
+                  <span class="fw-medium">{{ user.date_joined|date:"M Y" }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Recent Orders -->
+          <div class="col-lg-7">
+            <div class="dash-card h-100">
+              <div class="dash-card-header">
+                <h5 class="fw-bold mb-0">Recent Orders</h5>
+                <a href="{% url 'store:my_orders' %}" class="btn btn-sm btn-soft-primary">View All</a>
+              </div>
+              
+              {% with recent_orders=user.orders.all|slice:":4" %}
+              {% if recent_orders %}
+                <div class="table-responsive">
+                  <table class="table table-borderless align-middle">
+                    <thead class="text-muted small uppercase">
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for order in recent_orders %}
+                      <tr>
+                        <td class="fw-bold">#{{ order.id }}</td>
+                        <td class="text-muted small">{{ order.created_at|date:"d M Y" }}</td>
+                        <td class="fw-bold">₹{{ order.total_amount }}</td>
+                        <td>
+                          <span class="order-status 
+                            {% if order.status == 'delivered' %}status-delivered
+                            {% elif order.status == 'cancelled' %}status-cancelled
+                            {% elif order.status == 'shipped' or order.status == 'processing' %}status-processing
+                            {% else %}status-pending{% endif %}">
+                            {{ order.get_status_display }}
+                          </span>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="text-center py-4">
+                  <div class="mb-3">
+                    <i class="bi bi-box2 text-muted fs-1"></i>
+                  </div>
+                  <p class="text-muted mb-3">No orders placed yet.</p>
+                  <a href="{% url 'store:product_list' %}" class="btn btn-primary btn-sm">Start Shopping</a>
+                </div>
+              {% endif %}
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="dash-card">
+          <h5 class="fw-bold mb-3">Quick Actions</h5>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary px-4">
+              <i class="bi bi-pencil-square me-2"></i> Edit Profile
+            </a>
+            <a href="{% url 'store:my_orders' %}" class="btn btn-outline-primary px-4">
+              <i class="bi bi-truck me-2"></i> Track Orders
+            </a>
+            <a href="{% url 'store:cart_detail' %}" class="btn btn-outline-primary px-4">
+              <i class="bi bi-bag me-2"></i> View Cart
+            </a>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

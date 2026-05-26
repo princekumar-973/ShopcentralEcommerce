@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="container-custom">
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar (Shared with Dashboard) -->
+      <aside class="dash-sidebar">
+        <div class="dash-user-info">
+          <div class="dash-avatar">
+            {% if user.profile.avatar %}
+              <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="img-fluid rounded-circle">
+            {% else %}
+              <span>{{ user.username|first|upper }}</span>
+            {% endif %}
+          </div>
+          <h5 class="mb-1 fw-bold">{{ user.get_full_name|default:user.username }}</h5>
+          <p class="small text-muted mb-0">{{ user.email }}</p>
+        </div>
+
+        <nav class="dash-nav">
+          <a href="{% url 'accounts:dashboard' %}" class="dash-nav-link">
+            <i class="bi bi-house"></i> Dashboard
+          </a>
+          <a href="{% url 'accounts:profile' %}" class="dash-nav-link active">
+            <i class="bi bi-person-circle"></i> Edit Profile
+          </a>
+          <a href="{% url 'store:my_orders' %}" class="dash-nav-link">
+            <i class="bi bi-box-seam"></i> My Orders
+          </a>
+          <a href="{% url 'store:cart_detail' %}" class="dash-nav-link">
+            <i class="bi bi-cart3"></i> My Cart
+          </a>
+          <hr class="my-2 opacity-50">
+          <form method="post" action="{% url 'logout' %}" id="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="dash-nav-link logout border-0 bg-transparent w-100 text-start">
+              <i class="bi bi-door-open"></i> Logout
+            </button>
+          </form>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="dash-main">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h4 class="fw-bold mb-0">Profile Settings</h4>
+            <p class="text-muted small mb-0">Update your account information and shipping address.</p>
+          </div>
+          <hr class="my-4">
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+              <!-- User Info -->
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Personal Information</h6>
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">First Name</label>
+                  {{ u_form.first_name }}
+                  {% if u_form.first_name.errors %}<div class="text-danger small">{{ u_form.first_name.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">Last Name</label>
+                  {{ u_form.last_name }}
+                  {% if u_form.last_name.errors %}<div class="text-danger small">{{ u_form.last_name.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">Email Address</label>
+                  {{ u_form.email }}
+                  {% if u_form.email.errors %}<div class="text-danger small">{{ u_form.email.errors }}</div>{% endif %}
+                </div>
+              </div>
+
+              <!-- Contact & Address -->
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Contact & Shipping</h6>
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">Phone Number</label>
+                  {{ p_form.phone }}
+                  {% if p_form.phone.errors %}<div class="text-danger small">{{ p_form.phone.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">Pincode</label>
+                  {{ p_form.pincode }}
+                  {% if p_form.pincode.errors %}<div class="text-danger small">{{ p_form.pincode.errors }}</div>{% endif %}
+                </div>
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <label class="form-label small text-muted uppercase fw-bold">City</label>
+                    {{ p_form.city }}
+                  </div>
+                  <div class="col-6 mb-3">
+                    <label class="form-label small text-muted uppercase fw-bold">State</label>
+                    {{ p_form.state }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label small text-muted uppercase fw-bold">Full Address</label>
+                  {{ p_form.address }}
+                  {% if p_form.address.errors %}<div class="text-danger small">{{ p_form.address.errors }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-4">
+                  <label class="form-label small text-muted uppercase fw-bold">Profile Picture</label>
+                  {{ p_form.avatar }}
+                  {% if p_form.avatar.errors %}<div class="text-danger small">{{ p_form.avatar.errors }}</div>{% endif %}
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
+                  Save Changes
+                </button>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-link text-muted text-decoration-none ms-3">
+                  Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Form styling to match dashboard */
+  .form-control {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--dash-border);
+    background-color: var(--dash-bg);
+    color: var(--dash-text);
+  }
+  .form-control:focus {
+    border-color: var(--dash-accent);
+    box-shadow: 0 0 0 3px var(--dash-accent-soft);
+    background-color: var(--dash-card-bg);
+  }
+  .uppercase { text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.7rem; }
+</style>
+
+<script>
+  // Auto-apply Bootstrap classes to Django form widgets
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.type !== 'checkbox' && el.type !== 'radio' && el.type !== 'file') {
+      el.classList.add('form-control');
+    }
+  });
+</script>
+{% endblock %}

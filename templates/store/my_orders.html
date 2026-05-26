@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="container-custom">
+    <div class="dashboard-layout">
+      
+      <!-- Sidebar (Shared with Dashboard) -->
+      <aside class="dash-sidebar">
+        <div class="dash-user-info">
+          <div class="dash-avatar">
+            {% if user.profile.avatar %}
+              <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="img-fluid rounded-circle">
+            {% else %}
+              <span>{{ user.username|first|upper }}</span>
+            {% endif %}
+          </div>
+          <h5 class="mb-1 fw-bold">{{ user.get_full_name|default:user.username }}</h5>
+          <p class="small text-muted mb-0">{{ user.email }}</p>
+        </div>
+
+        <nav class="dash-nav">
+          <a href="{% url 'accounts:dashboard' %}" class="dash-nav-link">
+            <i class="bi bi-house"></i> Dashboard
+          </a>
+          <a href="{% url 'accounts:profile' %}" class="dash-nav-link">
+            <i class="bi bi-person-circle"></i> Edit Profile
+          </a>
+          <a href="{% url 'store:my_orders' %}" class="dash-nav-link active">
+            <i class="bi bi-box-seam"></i> My Orders
+          </a>
+          <a href="{% url 'store:cart_detail' %}" class="dash-nav-link">
+            <i class="bi bi-cart3"></i> My Cart
+          </a>
+          <hr class="my-2 opacity-50">
+          <form method="post" action="{% url 'logout' %}" id="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="dash-nav-link logout border-0 bg-transparent w-100 text-start">
+              <i class="bi bi-door-open"></i> Logout
+            </button>
+          </form>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="dash-main">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h4 class="fw-bold mb-0">Order History</h4>
+            <p class="text-muted small mb-0">View and track all your recent and past orders.</p>
+          </div>
+          <hr class="my-4">
+
+          {% if orders %}
+            <div class="orders-list">
+              {% for order in orders %}
+              <div class="order-item-card mb-4 border rounded-3 overflow-hidden shadow-sm">
+                <!-- Order Header -->
+                <div class="bg-light p-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <span class="text-muted small text-uppercase fw-bold">Order ID:</span>
+                    <span class="fw-bold ms-1">#{{ order.id }}</span>
+                    <span class="text-muted ms-3 small">{{ order.created_at|date:"d M Y, H:i" }}</span>
+                  </div>
+                  <div>
+                    <span class="order-status 
+                      {% if order.status == 'delivered' %}status-delivered
+                      {% elif order.status == 'cancelled' %}status-cancelled
+                      {% elif order.status == 'shipped' or order.status == 'processing' %}status-processing
+                      {% else %}status-pending{% endif %}">
+                      {{ order.get_status_display }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Order Body -->
+                <div class="p-3">
+                  {% for item in order.items.all %}
+                  <div class="d-flex align-items-center justify-content-between {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+                    <div class="d-flex align-items-center gap-3">
+                      {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" class="rounded" style="width:60px; height:60px; object-fit:cover; border:1px solid var(--dash-border);">
+                      {% endif %}
+                      <div>
+                        <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+                        <p class="mb-0 small text-muted">Quantity: {{ item.quantity }} | Size: {{ item.size|default:"N/A" }}</p>
+                        <p class="mb-0 small fw-bold">₹{{ item.price }} per unit</p>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <span class="fw-bold fs-5 text-accent">₹{{ item.get_total }}</span>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Order Footer -->
+                <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+                  <div class="small text-muted">
+                    <i class="bi bi-credit-card me-1"></i> {{ order.get_payment_method_display }}
+                  </div>
+                  <div class="fs-5">
+                    <span class="text-muted small me-2">Grand Total:</span>
+                    <span class="fw-bold text-dark">₹{{ order.total_amount }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-5">
+              <div class="mb-4">
+                <i class="bi bi-box-seam text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+              </div>
+              <h4 class="fw-bold">No orders yet!</h4>
+              <p class="text-muted mb-4">Looks like you haven't placed any orders yet. Start shopping to fill this page!</p>
+              <a href="{% url 'store:product_list' %}" class="btn btn-primary px-5 py-2 fw-bold">Start Shopping</a>
+            </div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<style>
+  .order-item-card {
+    background: var(--dash-card-bg);
+    transition: var(--transition);
+  }
+  .order-item-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+  }
+  .text-accent {
+    color: var(--dash-accent);
+  }
+  .bg-light {
+    background-color: var(--dash-bg) !important;
+  }
+</style>
+{% endblock %}

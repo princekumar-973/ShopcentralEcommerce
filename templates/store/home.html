@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ShopCentral - Minimalist Essentials{% endblock %}
+
+{% block content %}
+
+<!-- HERO BANNER CAROUSEL -->
+<section class="mb-5 pt-4">
+  <div class="container-custom">
+    <div id="heroCarousel" class="carousel slide rounded-lg overflow-hidden" data-bs-ride="carousel" data-bs-interval="3000" style="border-radius: 12px; height: 450px;">
+      
+      <!-- Indicators -->
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+      </div>
+
+      <!-- Carousel Inner -->
+      <div class="carousel-inner h-100">
+        
+        <!-- Slide 1 -->
+        <div class="carousel-item active h-100">
+          <img src="{% static 'images/hero_banner.png' %}" class="d-block w-100 h-100" style="object-fit: cover;" alt="Women's Fashion">
+          <div class="position-absolute top-0 bottom-0 d-flex flex-column justify-content-center p-5 ms-md-5" style="width: 50%; max-width: 500px; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);">
+            <span class="text-primary fw-bold mb-2 fs-5" style="letter-spacing: 2px;">Trending Item</span>
+            <h1 class="fw-bold text-dark mb-3" style="font-size: 3rem;">Women's latest fashion sale</h1>
+            <p class="text-gray mb-4 fs-5 fw-bold text-uppercase">starting at $ 20.00</p>
+            <div><a href="{% url 'store:product_list' %}" class="btn btn-primary px-4 py-2 fw-bold text-uppercase" style="border-radius: 8px;">Shop Now</a></div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item h-100">
+          <img src="{% static 'images/phone_banner.png' %}" class="d-block w-100 h-100" style="object-fit: cover;" alt="Tech Deals">
+          <div class="position-absolute top-0 bottom-0 d-flex flex-column justify-content-center p-5 ms-md-5" style="width: 50%; max-width: 500px; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);">
+            <span class="text-primary fw-bold mb-2 fs-5" style="letter-spacing: 2px;">Tech Deals</span>
+            <h1 class="fw-bold text-dark mb-3" style="font-size: 3rem;">Smartphone Mega Discount</h1>
+            <p class="text-gray mb-4 fs-5 fw-bold text-uppercase">up to 40% off</p>
+            <div><a href="{% url 'store:product_list' %}" class="btn btn-primary px-4 py-2 fw-bold text-uppercase" style="border-radius: 8px;">Shop Now</a></div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item h-100">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" class="d-block w-100 h-100" style="object-fit: cover;" alt="Watches">
+          <div class="position-absolute top-0 bottom-0 d-flex flex-column justify-content-center p-5 ms-md-5" style="width: 50%; max-width: 500px; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);">
+            <span class="text-primary fw-bold mb-2 fs-5" style="letter-spacing: 2px;">New Arrivals</span>
+            <h1 class="fw-bold text-dark mb-3" style="font-size: 3rem;">Premium Watches Collection</h1>
+            <p class="text-gray mb-4 fs-5 fw-bold text-uppercase">starting at $ 99.00</p>
+            <div><a href="{% url 'store:product_list' %}" class="btn btn-primary px-4 py-2 fw-bold text-uppercase" style="border-radius: 8px;">Shop Now</a></div>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="carousel-item h-100">
+          <img src="https://images.unsplash.com/photo-1584916201218-f4242ceb4809?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" class="d-block w-100 h-100" style="object-fit: cover;" alt="Bags">
+          <div class="position-absolute top-0 bottom-0 d-flex flex-column justify-content-center p-5 ms-md-5" style="width: 50%; max-width: 500px; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);">
+            <span class="text-primary fw-bold mb-2 fs-5" style="letter-spacing: 2px;">Hot Offers</span>
+            <h1 class="fw-bold text-dark mb-3" style="font-size: 3rem;">Designer Bags & Accessories</h1>
+            <p class="text-gray mb-4 fs-5 fw-bold text-uppercase">Flat 25% Off</p>
+            <div><a href="{% url 'store:product_list' %}" class="btn btn-primary px-4 py-2 fw-bold text-uppercase" style="border-radius: 8px;">Shop Now</a></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1) grayscale(100); background-color: rgba(0,0,0,0.5); border-radius: 50%; padding: 20px;"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1) grayscale(100); background-color: rgba(0,0,0,0.5); border-radius: 50%; padding: 20px;"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="container-custom mb-5 pb-3">
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-3 col-sm-6 text-center">
+      <div class="p-3">
+        <i class="bi bi-truck text-primary fs-3 mb-2 d-block"></i>
+        <h6 class="fw-semibold text-dark mb-1">Free Delivery</h6>
+        <p class="text-gray small mb-0">On orders over ₹999</p>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 text-center">
+      <div class="p-3">
+        <i class="bi bi-shield-check text-primary fs-3 mb-2 d-block"></i>
+        <h6 class="fw-semibold text-dark mb-1">Secure Checkout</h6>
+        <p class="text-gray small mb-0">Encrypted payments</p>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 text-center">
+      <div class="p-3">
+        <i class="bi bi-arrow-return-left text-primary fs-3 mb-2 d-block"></i>
+        <h6 class="fw-semibold text-dark mb-1">30-Day Returns</h6>
+        <p class="text-gray small mb-0">Hassle-free policy</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEW PRODUCTS -->
+<section class="container-custom mb-5 pb-5">
+  <div class="mb-4 border-bottom pb-2">
+    <h2 class="fs-4 fw-bold mb-0">New Products</h2>
+  </div>
+
+  <div class="product-grid">
+    {% for product in featured_products %}
+      <div class="product-card">
+        <!-- Sale Badge -->
+        {% if product.discount_percentage > 0 %}
+          <span class="sale-badge">Sale</span>
+        {% endif %}
+        
+        <!-- Wishlist Button -->
+        <button class="wishlist-btn" title="Add to Wishlist" onclick="toggleWishlist('{{ product.id }}', this)">
+          <i class="bi bi-heart"></i>
+        </button>
+
+        <a href="{% url 'store:product_detail' product.slug %}" class="text-decoration-none d-block">
+          <div class="product-img-wrapper">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+              <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-main">
+                <i class="bi bi-image text-light opacity-50" style="font-size: 3rem;"></i>
+              </div>
+            {% endif %}
+          </div>
+        </a>
+        
+        <div class="product-info">
+          <span class="product-category">{{ product.category.name }}</span>
+          <a href="{% url 'store:product_detail' product.slug %}" class="text-decoration-none">
+            <h3 class="product-title">{{ product.name }}</h3>
+          </a>
+          
+          <div class="product-price-wrapper">
+            <span class="product-price">₹{{ product.price }}</span>
+            {% if product.original_price and product.original_price > product.price %}
+              <span class="product-price-original">₹{{ product.original_price }}</span>
+              <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+            {% endif %}
+          </div>
+          
+          <div class="product-actions mt-auto">
+            {% if product.stock > 0 %}
+              <form method="post" action="{% url 'store:cart_add' product.id %}" class="w-100 m-0 cart-form-grid">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn-add-cart-grid" onclick="toggleCartBtn(this, event)">
+                  <i class="bi bi-cart-plus"></i>
+                  <span>Add to Cart</span>
+                </button>
+              </form>
+            {% else %}
+              <button class="btn-add-cart-grid opacity-50" disabled>Sold Out</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5 bg-card border rounded-3" style="grid-column: 1 / -1;">
+        <i class="bi bi-bag-x text-light mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="text-dark">No products available</h5>
+        <p class="text-gray small">Check back later.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

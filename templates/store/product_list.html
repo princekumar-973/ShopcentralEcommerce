@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop - ShopCentral{% endblock %}
+
+{% block content %}
+<!-- PAGE HEADER -->
+<div class="bg-card py-4 border-bottom mb-4">
+  <div class="container-custom">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1 small">
+        <li class="breadcrumb-item"><a href="/" class="text-gray text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item active text-dark" aria-current="page">Shop</li>
+      </ol>
+    </nav>
+    <h1 class="fs-3 mb-0">All Products</h1>
+  </div>
+</div>
+
+<div class="container-custom mb-5 pb-5">
+  <div class="row">
+    <!-- SIDEBAR FILTERS -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <form method="GET" action="{% url 'store:product_list' %}" id="filterForm">
+        <!-- Preserve search query if present -->
+        {% if query %}
+          <input type="hidden" name="q" value="{{ query }}">
+        {% endif %}
+        
+        <div class="bg-card border rounded-3 p-4 sticky-top" style="top: 90px;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fs-6 fw-bold mb-0 text-dark">Filters</h5>
+            <a href="{% url 'store:product_list' %}" class="text-primary small text-decoration-none fw-semibold">Clear All</a>
+          </div>
+          
+          <!-- Category Filter -->
+          <div class="mb-4">
+            <h6 class="small fw-semibold text-dark text-uppercase mb-2">Category</h6>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" value="all" id="cat-all" {% if not selected_categories or 'all' in selected_categories %}checked{% endif %}>
+              <label class="form-check-label text-gray small" for="cat-all">All Categories</label>
+            </div>
+            {% for category in categories %}
+            <div class="form-check mb-2">
+              <input class="form-check-input category-checkbox" type="checkbox" name="category" value="{{ category.slug }}" id="cat-{{ category.slug }}" {% if category.slug in selected_categories %}checked{% endif %}>
+              <label class="form-check-label text-gray small" for="cat-{{ category.slug }}">{{ category.name }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Price Range -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="small fw-semibold text-dark text-uppercase mb-0">Max Price</h6>
+              <span id="priceValue" class="fw-bold text-primary small">₹{% if max_price %}{{ max_price }}{% else %}50,000{% endif %}</span>
+            </div>
+            <input type="range" name="max_price" class="form-range" min="0" max="50000" step="500" id="priceRange" value="{% if max_price %}{{ max_price }}{% else %}50000{% endif %}">
+            <div class="d-flex justify-content-between text-gray small mt-1">
+              <span>₹0</span>
+              <span>₹50,000+</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100 btn-sm py-2 fw-bold" style="border-radius: 10px; background: var(--primary) !important;">Apply Filters</button>
+        </div>
+        
+        <!-- Hidden sort field to preserve sorting when applying filters -->
+        <input type="hidden" name="sort" id="hiddenSort" value="{{ sort }}">
+      </form>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="col-lg-9">
+      
+      <!-- Top Bar (Sort & Results) -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <p class="mb-0 text-gray small">{{ products|length }} items found</p>
+        <div class="d-flex align-items-center gap-2">
+          <label class="text-gray small text-nowrap">Sort by:</label>
+          <select class="form-select form-select-sm shadow-none border-0 bg-main text-dark fw-medium" style="width: auto;" onchange="updateSort(this.value)">
+            <option value="" {% if not sort %}selected{% endif %}>Recommended</option>
+            <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+          <!-- Sale Badge -->
+          {% if product.discount_percentage > 0 %}
+            <span class="sale-badge">Sale</span>
+          {% endif %}
+          
+          <!-- Wishlist Button -->
+        <button class="wishlist-btn" title="Add to Wishlist" onclick="toggleWishlist('{{ product.id }}', this)">
+          <i class="bi bi-heart"></i>
+        </button>
+
+          <a href="{% url 'store:product_detail' product.slug %}" class="text-decoration-none d-block">
+            <div class="product-img-wrapper">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+              {% else %}
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-main">
+                  <i class="bi bi-image text-light opacity-50" style="font-size: 3rem;"></i>
+                </div>
+              {% endif %}
+            </div>
+          </a>
+          
+          <div class="product-info">
+            <span class="product-category">{{ product.category.name }}</span>
+            <a href="{% url 'store:product_detail' product.slug %}" class="text-decoration-none">
+              <h3 class="product-title">{{ product.name }}</h3>
+            </a>
+            
+            <div class="product-price-wrapper">
+              <span class="product-price">₹{{ product.price }}</span>
+              {% if product.original_price and product.original_price > product.price %}
+                <span class="product-price-original">₹{{ product.original_price }}</span>
+                <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+              {% endif %}
+            </div>
+            
+            <div class="product-actions mt-auto">
+              {% if product.stock > 0 %}
+                <form method="post" action="{% url 'store:cart_add' product.id %}" class="w-100 m-0 cart-form-grid">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" class="btn-add-cart-grid" onclick="toggleCartBtn(this, event)">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Add to Cart</span>
+                  </button>
+                </form>
+              {% else %}
+                <button class="btn-add-cart-grid opacity-50" disabled>Sold Out</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-card border rounded-3" style="grid-column: 1 / -1;">
+          <i class="bi bi-search text-light mb-3 d-block" style="font-size: 3rem;"></i>
+          <h5 class="text-dark">No products found</h5>
+          <p class="text-gray small">Try adjusting your filters or search query.</p>
+        </div>
+        {% endfor %}
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function updateSort(val) {
+    document.getElementById('hiddenSort').value = val;
+    document.getElementById('filterForm').submit();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    const catAll = document.getElementById('cat-all');
+    const catCheckboxes = document.querySelectorAll('.category-checkbox');
+
+    // Price Slider Live Update
+    priceRange.addEventListener('input', function() {
+      const val = parseInt(this.value);
+      priceValue.textContent = '₹' + val.toLocaleString('en-IN') + (val >= 50000 ? '+' : '');
+    });
+
+    // Category Sync Logic
+    catAll.addEventListener('change', function() {
+      catCheckboxes.forEach(cb => {
+        cb.checked = this.checked;
+        // When checking "All", we actually want to submit without specific category filters
+      });
+    });
+
+    catCheckboxes.forEach(cb => {
+      cb.addEventListener('change', function() {
+        if (!this.checked) {
+          catAll.checked = false;
+        } else {
+          const allChecked = Array.from(catCheckboxes).every(c => c.checked);
+          if (allChecked) catAll.checked = true;
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
