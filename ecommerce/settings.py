@@ -27,7 +27,8 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-do-not-use-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
+DEBUG = True
+
 
 # ALLOWED_HOSTS parsed from comma-separated list
 allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
@@ -82,10 +83,21 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import shutil
+DB_PATH = '/tmp/db.sqlite3'
+bundled_db = BASE_DIR / 'db.sqlite3'
+
+# Copy the bundled DB to Vercel's writable /tmp directory if it doesn't already exist there
+if bundled_db.exists() and not os.path.exists(DB_PATH):
+    try:
+        shutil.copy2(bundled_db, DB_PATH)
+    except Exception:
+        pass
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_PATH if os.path.exists(DB_PATH) else bundled_db,
     }
 }
 
