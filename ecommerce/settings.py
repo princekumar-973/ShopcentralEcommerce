@@ -32,6 +32,7 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 # ALLOWED_HOSTS parsed from comma-separated list
 allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = allowed_hosts_env.split(',') if allowed_hosts_env else []
+ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', '.vercel.app'])
 
 
 # Application definition
